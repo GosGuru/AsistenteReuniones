@@ -49,6 +49,16 @@
 </head>
   <body class="bg-black text-gray-200">
     <div id="root"></div>
+    <script>
+      // WARNING: This is a development-only workaround.
+      // In a production environment, the API key MUST be set via secure environment variables
+      // on your hosting platform, not hardcoded in the client-side code.
+      if (window.process === undefined) {
+        window.process = { env: {} };
+      }
+      window.process.env = window.process.env || {};
+      window.process.env.API_KEY = "AIzaSyBQt8up-dvGEfk04PdX7pm_tzX11UPQmE4";
+    </script>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
