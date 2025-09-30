@@ -62,7 +62,7 @@ export const SummaryView: React.FC<SummaryViewProps> = ({ data }) => {
         ) : (
           <p className="text-gray-500 italic">No se identificaron riesgos.</p>
         )}
-      </section>
+      </Section>
     </div>
   );
 };

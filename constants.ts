@@ -62,8 +62,8 @@ export const RESPONSE_JSON_SCHEMA = {
             properties: {
               decision: { type: Type.STRING },
               who: { type: Type.STRING },
-              when: { type: Type.STRING },
-              rationale: { type: Type.STRING }
+              when: { type: [Type.STRING, Type.NULL] },
+              rationale: { type: [Type.STRING, Type.NULL] }
             },
             required: ["decision","who"]
           }
@@ -75,7 +75,7 @@ export const RESPONSE_JSON_SCHEMA = {
             properties: {
               risk: { type: Type.STRING },
               impact: { type: Type.STRING },
-              mitigation: { type: Type.STRING }
+              mitigation: { type: [Type.STRING, Type.NULL] }
             },
             required: ["risk","impact"]
           }
@@ -91,7 +91,7 @@ export const RESPONSE_JSON_SCHEMA = {
           name: { type: Type.STRING },
           status: { type: Type.STRING },
           owner: { type: Type.STRING },
-          notes: { type: Type.STRING }
+          notes: { type: [Type.STRING, Type.NULL] }
         },
         required: ["name","status","owner"]
       }
@@ -102,9 +102,9 @@ export const RESPONSE_JSON_SCHEMA = {
         type: Type.OBJECT,
         properties: {
           idea: { type: Type.STRING },
-          value: { type: Type.STRING },
-          effort: { type: Type.STRING },
-          next_step: { type: Type.STRING }
+          value: { type: [Type.STRING, Type.NULL] },
+          effort: { type: [Type.STRING, Type.NULL] },
+          next_step: { type: [Type.STRING, Type.NULL] }
         },
         required: ["idea"]
       }
@@ -115,8 +115,8 @@ export const RESPONSE_JSON_SCHEMA = {
         type: Type.OBJECT,
         properties: {
           page: { type: Type.STRING },
-          url: { type: Type.STRING },
-          note: { type: Type.STRING }
+          url: { type: [Type.STRING, Type.NULL] },
+          note: { type: [Type.STRING, Type.NULL] }
         },
         required: ["page"]
       }
@@ -143,7 +143,7 @@ export const RESPONSE_JSON_SCHEMA = {
         properties: {
           task: { type: Type.STRING },
           owner: { type: Type.STRING },
-          due: { type: Type.STRING },
+          due: { type: [Type.STRING, Type.NULL] },
           priority: { type: Type.STRING, enum: ["alta","media","baja"] },
           dependencies: {
             type: Type.ARRAY,
