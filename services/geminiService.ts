@@ -2,24 +2,18 @@ import { GoogleGenAI } from '@google/genai';
 import { SYSTEM_INSTRUCTION_JSON, SYSTEM_INSTRUCTION_MARKDOWN, RESPONSE_JSON_SCHEMA } from '../constants';
 import type { SummaryData } from '../types';
 
-// Lazily initialize the AI instance to avoid crashing the app on load if the key is missing.
-let aiInstance: GoogleGenAI | null = null;
+// The API key is read from the environment variable `API_KEY`.
+// This is a secure way to handle secrets and is configured in the hosting environment.
+// Fix: Replaced `import.meta.env.GEMINI_API_KEY` with `process.env.API_KEY` to comply with guidelines and fix the build error.
+const API_KEY = process.env.API_KEY;
 
-function getAiInstance(): GoogleGenAI {
-  if (aiInstance) {
-    return aiInstance;
-  }
-
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    // This user-friendly error will be caught by the App component and displayed in the UI.
+if (!API_KEY) {
+    // This provides a clear error message if the environment variable is not set.
+    // Fix: Updated error message to refer to `API_KEY` for consistency.
     throw new Error("La variable de entorno API_KEY no está configurada. Por favor, define la clave de API en la configuración de tu entorno para que la aplicación funcione.");
-  }
-
-  aiInstance = new GoogleGenAI({ apiKey });
-  return aiInstance;
 }
 
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 const model = 'gemini-2.5-flash';
 
 interface SummaryParams {
@@ -38,7 +32,7 @@ function handleApiError(error: unknown, context: 'generación de resumen' | 'tra
 
     if (error instanceof Error) {
         if (error.message.includes('API_KEY no está configurada')) {
-            return error; // Pass the user-friendly message directly to the UI.
+            return new Error("La variable de entorno API_KEY no está configurada. Por favor, define la clave de API en la configuración de tu entorno para que la aplicación funcione.");
         }
         if (error.message.toLowerCase().includes('api key not valid')) {
             message = 'Falló la autenticación. La clave de API proporcionada es inválida o no existe.';
@@ -84,7 +78,6 @@ export async function generateStructuredSummary(params: SummaryParams): Promise<
   const userContent = buildUserContent(params);
 
   try {
-    const ai = getAiInstance();
     const response = await ai.models.generateContent({
       model: model,
       contents: JSON.stringify(userContent),
@@ -110,7 +103,6 @@ export async function generateMarkdownSummary(params: SummaryParams): Promise<st
     `;
 
     try {
-        const ai = getAiInstance();
         const response = await ai.models.generateContent({
             model: model,
             contents: prompt,
@@ -142,7 +134,6 @@ function blobToBase64(blob: Blob): Promise<string> {
 
 export async function transcribeAudio(audioBlob: Blob): Promise<string> {
   try {
-    const ai = getAiInstance();
     const base64Audio = await blobToBase64(audioBlob);
     const audioPart = {
       inlineData: {
