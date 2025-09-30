@@ -26,15 +26,15 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcript, note
     <div className="space-y-6">
       {hasNotes && (
          <div>
-            <h3 className="text-lg font-semibold text-gray-400 mb-2">Notas Generales</h3>
-            <div className="bg-gray-800/50 p-4 rounded-md text-sm text-gray-300 whitespace-pre-wrap">
+            <h3 className="text-lg font-semibold text-gray-300 mb-2">Notas Generales</h3>
+            <div className="bg-gray-900/50 p-4 rounded-md text-sm text-gray-300 whitespace-pre-wrap">
             {notes}
             </div>
          </div>
       )}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-semibold text-gray-400">Transcripción Completa</h3>
+          <h3 className="text-lg font-semibold text-gray-300">Transcripción Completa</h3>
           {isLongTranscript && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
@@ -45,7 +45,7 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcript, note
             </button>
           )}
         </div>
-        <div className={`bg-gray-800/50 p-4 rounded-md text-sm text-gray-300 whitespace-pre-wrap ${containerClasses}`}>
+        <div className={`bg-gray-900/50 p-4 rounded-md text-sm text-gray-300 whitespace-pre-wrap ${containerClasses}`}>
           {displayedText}
         </div>
       </div>

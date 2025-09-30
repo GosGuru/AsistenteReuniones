@@ -182,16 +182,16 @@ export const InputSection: React.FC<InputSectionProps> = ({
   const InputField: React.FC<{ label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder: string }> = ({ label, ...props }) => (
     <div>
         <label className="block text-sm font-medium text-gray-400 mb-1">{label}</label>
-        <input type="text" {...props} className="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"/>
+        <input type="text" {...props} className="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"/>
     </div>
   );
 
   const isRecordingActive = recordingStatus === 'recording' || recordingStatus === 'paused';
 
   return (
-    <div className="bg-gray-900 p-6 rounded-lg shadow-lg flex flex-col gap-6">
+    <div className="bg-gray-950 p-6 rounded-lg shadow-lg flex flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-100 mb-2">1. Introduce la Transcripción</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">1. Introduce la Transcripción</h2>
         <div className="flex items-center gap-2 mb-2">
             {!isRecordingActive && !isTranscribing && (
                 <Button onClick={startRecording} disabled={isLoading} variant="secondary" size="sm">
@@ -206,14 +206,14 @@ export const InputSection: React.FC<InputSectionProps> = ({
         </div>
         
         {(isRecordingActive || isTranscribing) && (
-            <div className="my-2 p-4 bg-black/50 rounded-lg flex flex-col items-center gap-3">
+            <div className="my-2 p-4 bg-black/30 rounded-lg flex flex-col items-center gap-3">
                 {isTranscribing ? (
                     <div className="flex items-center justify-center gap-3 py-8">
                         <Loader />
                     </div>
                 ) : (
                     <>
-                        <div className="flex items-center gap-3 text-lg font-mono text-gray-300">
+                        <div className="flex items-center gap-3 text-lg font-mono text-gray-200">
                            <span className="w-3 h-3 bg-red-500 rounded-full recording-indicator"></span>
                            <span>{formatTime(elapsedTime)}</span>
                         </div>
@@ -223,7 +223,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                                 <Icon name={recordingStatus === 'recording' ? 'pause' : 'play'} />
                                 {recordingStatus === 'recording' ? 'Pausar' : 'Reanudar'}
                             </Button>
-                            <Button onClick={stopRecording} variant="secondary" size="sm" className="bg-red-600/80 hover:bg-red-700 text-white w-28">
+                            <Button onClick={stopRecording} variant="secondary" size="sm" className="bg-red-600 hover:bg-red-500 text-white w-28">
                                 <Icon name='stop' />
                                 Detener
                             </Button>
@@ -238,13 +238,13 @@ export const InputSection: React.FC<InputSectionProps> = ({
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
           placeholder="Pega la transcripción aquí o usa el grabador de audio..."
-          className="w-full h-48 bg-gray-800 border border-gray-700 rounded-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-y"
+          className="w-full h-48 bg-gray-800 border border-gray-700 rounded-md p-3 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-y"
           disabled={isLoading || isRecordingActive || isTranscribing}
         />
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-gray-100 mb-3">2. Añade Contexto (Opcional)</h2>
+        <h2 className="text-2xl font-bold text-white mb-3">2. Añade Contexto (Opcional)</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
            <InputField label="Título de la Reunión" value={meetingTitle} onChange={(e) => setMeetingTitle(e.target.value)} placeholder="Ej: Sync Semanal de Q3"/>
            <InputField label="Responsable por Defecto" value={defaultOwner} onChange={(e) => setDefaultOwner(e.target.value)} placeholder="Ej: Ana Pérez"/>
@@ -255,7 +255,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
       </div>
       
       <div>
-        <h2 className="text-2xl font-bold text-gray-100 mb-3">3. Genera el Resumen</h2>
+        <h2 className="text-2xl font-bold text-white mb-3">3. Genera el Resumen</h2>
         <div className="flex flex-col sm:flex-row gap-4">
             <Button 
                 onClick={() => onGenerate('json')}

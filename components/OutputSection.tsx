@@ -44,15 +44,15 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ summaryData, markd
   
   if (format === 'markdown') {
     return (
-       <div className="bg-gray-900 p-6 rounded-lg shadow-lg flex-grow flex flex-col">
+       <div className="bg-gray-950 p-6 rounded-lg shadow-lg flex-grow flex flex-col">
         <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-100">Resumen en Markdown</h2>
+            <h2 className="text-2xl font-bold text-white">Resumen en Markdown</h2>
             <div className="flex gap-2">
                 <Button onClick={handleCopy} variant="secondary" size="sm">{copied ? '¡Copiado!' : <Icon name="copy" />}</Button>
                 <Button onClick={handleDownload} variant="secondary" size="sm"><Icon name="download" /></Button>
             </div>
         </div>
-        <div className="prose prose-invert bg-black/50 rounded-md p-4 overflow-auto flex-grow max-w-none prose-pre:bg-gray-800/50">
+        <div className="prose prose-invert bg-black/30 rounded-md p-4 overflow-auto flex-grow max-w-none prose-pre:bg-gray-900/50">
           <pre className="whitespace-pre-wrap">{markdownData}</pre>
         </div>
        </div>
@@ -99,9 +99,9 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ summaryData, markd
   };
 
   return (
-    <div className="bg-gray-900 p-0 sm:p-6 rounded-lg shadow-lg flex-grow flex flex-col">
+    <div className="bg-gray-950 p-0 sm:p-6 rounded-lg shadow-lg flex-grow flex flex-col">
        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-6 pt-6 sm:px-0 sm:pt-0">
-        <h2 className="text-2xl font-bold text-gray-100 mb-2 sm:mb-0">Resumen Estructurado</h2>
+        <h2 className="text-2xl font-bold text-white mb-2 sm:mb-0">Resumen Estructurado</h2>
         <div className="flex gap-2">
             <Button onClick={handleCopy} variant="secondary" size="sm">{copied ? '¡Copiado!' : 'Copiar JSON'}</Button>
             <Button onClick={handleDownload} variant="secondary" size="sm">Descargar JSON</Button>
@@ -115,8 +115,8 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ summaryData, markd
               onClick={() => setActiveTab(tab)}
               className={`whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm transition-colors duration-200 ${
                 activeTab === tab
-                  ? 'border-blue-500 text-gray-100'
-                  : 'border-transparent text-gray-500 hover:text-gray-200 hover:border-gray-700'
+                  ? 'border-blue-500 text-white'
+                  : 'border-transparent text-gray-400 hover:text-white hover:border-gray-700'
               }`}
             >
               {tab}

@@ -16,11 +16,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ data }) => {
       {data.map((project, index) => (
         <Card key={index}>
           <div className="flex justify-between items-start">
-            <h4 className="font-bold text-md text-gray-200">{project.name}</h4>
-            <span className="text-xs bg-blue-900 text-blue-400 px-2 py-1 rounded-full capitalize">{project.status}</span>
+            <h4 className="font-bold text-md text-white">{project.name}</h4>
+            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full capitalize">{project.status}</span>
           </div>
           <p className="text-sm text-gray-400 mt-1">Responsable: {project.owner}</p>
-          {project.notes && <p className="text-sm mt-2 pt-2 border-t border-gray-700/50 text-gray-300">{project.notes}</p>}
+          {project.notes && <p className="text-sm mt-2 pt-2 border-t border-gray-800 text-gray-300">{project.notes}</p>}
         </Card>
       ))}
     </div>

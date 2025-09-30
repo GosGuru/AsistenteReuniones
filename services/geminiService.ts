@@ -2,11 +2,24 @@ import { GoogleGenAI } from '@google/genai';
 import { SYSTEM_INSTRUCTION_JSON, SYSTEM_INSTRUCTION_MARKDOWN, RESPONSE_JSON_SCHEMA } from '../constants';
 import type { SummaryData } from '../types';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable is not set.");
+// Lazily initialize the AI instance to avoid crashing the app on load if the key is missing.
+let aiInstance: GoogleGenAI | null = null;
+
+function getAiInstance(): GoogleGenAI {
+  if (aiInstance) {
+    return aiInstance;
+  }
+
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    // This user-friendly error will be caught by the App component and displayed in the UI.
+    throw new Error("La variable de entorno API_KEY no está configurada. Por favor, define la clave de API en la configuración de tu entorno para que la aplicación funcione.");
+  }
+
+  aiInstance = new GoogleGenAI({ apiKey });
+  return aiInstance;
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 const model = 'gemini-2.5-flash';
 
 interface SummaryParams {
@@ -24,6 +37,9 @@ function handleApiError(error: unknown, context: 'generación de resumen' | 'tra
     let message = `Ocurrió un error inesperado durante la ${context}. Por favor, inténtalo de nuevo más tarde.`;
 
     if (error instanceof Error) {
+        if (error.message.includes('API_KEY no está configurada')) {
+            return error; // Pass the user-friendly message directly to the UI.
+        }
         if (error.message.toLowerCase().includes('api key not valid')) {
             message = 'Falló la autenticación. La clave de API proporcionada es inválida o no existe.';
         } else if (error.message.toLowerCase().includes('rate limit')) {
@@ -68,6 +84,7 @@ export async function generateStructuredSummary(params: SummaryParams): Promise<
   const userContent = buildUserContent(params);
 
   try {
+    const ai = getAiInstance();
     const response = await ai.models.generateContent({
       model: model,
       contents: JSON.stringify(userContent),
@@ -93,6 +110,7 @@ export async function generateMarkdownSummary(params: SummaryParams): Promise<st
     `;
 
     try {
+        const ai = getAiInstance();
         const response = await ai.models.generateContent({
             model: model,
             contents: prompt,
@@ -124,6 +142,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 
 export async function transcribeAudio(audioBlob: Blob): Promise<string> {
   try {
+    const ai = getAiInstance();
     const base64Audio = await blobToBase64(audioBlob);
     const audioPart = {
       inlineData: {

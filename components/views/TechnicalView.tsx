@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import type { TechnicalConsideration } from '../../types';
 import { Card } from '../common/Card';
@@ -17,7 +15,7 @@ export const TechnicalView: React.FC<TechnicalViewProps> = ({ data }) => {
     <div className="space-y-4">
       {data.map((item, index) => (
         <Card key={index}>
-          <h4 className="font-bold text-md text-gray-200">{item.topic}</h4>
+          <h4 className="font-bold text-md text-white">{item.topic}</h4>
           <p className="text-sm text-gray-300 mt-2">{item.details}</p>
           {item.open_questions.length > 0 && (
             <div className="mt-3 pt-3 border-t border-gray-800">
