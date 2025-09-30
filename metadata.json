@@ -1,0 +1,7 @@
+{
+  "name": "Resumidor de Reuniones con IA",
+  "description": "Un asistente inteligente para transcribir, analizar y resumir tus reuniones. Extrae decisiones clave, elementos de acción y conocimientos, proporcionando una salida estructurada en formato JSON o Markdown.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
