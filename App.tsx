@@ -57,13 +57,13 @@ const App: React.FC = () => {
   }, [transcript, meetingTitle, attendees, defaultOwner]);
 
   return (
-    <div className="min-h-screen bg-slate-900 font-sans text-slate-300 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-950 font-sans text-gray-300 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-500">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-400">
             Resumidor de Reuniones con IA
           </h1>
-          <p className="mt-2 text-slate-400">
+          <p className="mt-2 text-gray-400">
             Transforma las transcripciones de tus reuniones en resúmenes estructurados, tareas y conocimientos.
           </p>
         </header>
@@ -83,7 +83,7 @@ const App: React.FC = () => {
           />
           <div className="flex flex-col">
             {isLoading && (
-              <div className="flex-grow flex items-center justify-center bg-slate-800/50 rounded-lg">
+              <div className="flex-grow flex items-center justify-center bg-gray-900/50 rounded-lg">
                 <Loader />
               </div>
             )}
@@ -98,8 +98,8 @@ const App: React.FC = () => {
               />
             )}
              {!isLoading && !error && !summaryOutput && !markdownOutput && (
-                <div className="flex-grow flex items-center justify-center bg-slate-800/50 border-2 border-dashed border-slate-700 rounded-lg">
-                    <div className="text-center text-slate-500">
+                <div className="flex-grow flex items-center justify-center bg-gray-900 border-2 border-dashed border-gray-800 rounded-lg">
+                    <div className="text-center text-gray-600">
                         <p className="text-lg font-medium">Tu resumen aparecerá aquí.</p>
                         <p className="text-sm">Ingresa una transcripción y genera un resumen para comenzar.</p>
                     </div>

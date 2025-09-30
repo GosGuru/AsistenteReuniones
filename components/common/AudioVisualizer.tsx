@@ -29,11 +29,11 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ analyserNode, 
       const dataArray = new Uint8Array(bufferLength);
       analyserNode.getByteTimeDomainData(dataArray);
 
-      canvasCtx.fillStyle = '#1e293b'; // slate-800
+      canvasCtx.fillStyle = '#374151'; // gray-700
       canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
       canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = '#5eead4'; // teal-300
+      canvasCtx.strokeStyle = '#ffffff'; // white
 
       canvasCtx.beginPath();
 
@@ -61,7 +61,7 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ analyserNode, 
       draw();
     } else {
         // Clear canvas when not recording
-        canvasCtx.fillStyle = '#1e293b';
+        canvasCtx.fillStyle = '#374151';
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -72,5 +72,5 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ analyserNode, 
     };
   }, [analyserNode, status]);
 
-  return <canvas ref={canvasRef} width="300" height="75" className="w-full h-16 rounded-md bg-slate-800" />;
+  return <canvas ref={canvasRef} width="300" height="75" className="w-full h-16 rounded-md bg-gray-800" />;
 };

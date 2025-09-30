@@ -1,6 +1,4 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { SummaryData, OutputFormat } from '../types';
 import { SummaryView } from './views/SummaryView';
 import { TasksView } from './views/TasksView';
@@ -46,24 +44,40 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ summaryData, markd
   
   if (format === 'markdown') {
     return (
-       <div className="bg-slate-800 p-6 rounded-lg shadow-lg flex-grow flex flex-col">
+       <div className="bg-gray-900 p-6 rounded-lg shadow-lg flex-grow flex flex-col">
         <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-teal-400">Resumen en Markdown</h2>
+            <h2 className="text-2xl font-bold text-gray-100">Resumen en Markdown</h2>
             <div className="flex gap-2">
                 <Button onClick={handleCopy} variant="secondary" size="sm">{copied ? '¡Copiado!' : <Icon name="copy" />}</Button>
                 <Button onClick={handleDownload} variant="secondary" size="sm"><Icon name="download" /></Button>
             </div>
         </div>
-        <div className="prose prose-invert bg-slate-900 rounded-md p-4 overflow-auto flex-grow max-w-none prose-pre:bg-slate-900/50">
+        <div className="prose prose-invert bg-black/50 rounded-md p-4 overflow-auto flex-grow max-w-none prose-pre:bg-gray-800/50">
           <pre className="whitespace-pre-wrap">{markdownData}</pre>
         </div>
        </div>
     );
   }
+  
+  const availableTabs = useMemo(() => {
+      if (!summaryData) return [];
+      const tabs: Tab[] = ['Resumen'];
+      if (summaryData.next_steps?.length > 0) tabs.push('Tareas');
+      if (summaryData.projects_current?.length > 0) tabs.push('Proyectos');
+      if (summaryData.new_ideas_opportunities?.length > 0) tabs.push('Ideas');
+      if (summaryData.technical_considerations?.length > 0) tabs.push('Técnico');
+      tabs.push('Transcripción');
+      return tabs;
+  }, [summaryData]);
+
+  useEffect(() => {
+    // Reset tab if it's not available in the new summary
+    if (availableTabs.length > 0 && !availableTabs.includes(activeTab)) {
+        setActiveTab(availableTabs[0]);
+    }
+  }, [availableTabs, activeTab]);
 
   if (!summaryData) return null;
-
-  const tabs: Tab[] = ['Resumen', 'Tareas', 'Proyectos', 'Ideas', 'Técnico', 'Transcripción'];
 
   const renderContent = () => {
     switch (activeTab) {
@@ -85,24 +99,24 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ summaryData, markd
   };
 
   return (
-    <div className="bg-slate-800 p-0 sm:p-6 rounded-lg shadow-lg flex-grow flex flex-col">
+    <div className="bg-gray-900 p-0 sm:p-6 rounded-lg shadow-lg flex-grow flex flex-col">
        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-6 pt-6 sm:px-0 sm:pt-0">
-        <h2 className="text-2xl font-bold text-teal-400 mb-2 sm:mb-0">Resumen Estructurado</h2>
+        <h2 className="text-2xl font-bold text-gray-100 mb-2 sm:mb-0">Resumen Estructurado</h2>
         <div className="flex gap-2">
             <Button onClick={handleCopy} variant="secondary" size="sm">{copied ? '¡Copiado!' : 'Copiar JSON'}</Button>
             <Button onClick={handleDownload} variant="secondary" size="sm">Descargar JSON</Button>
         </div>
       </div>
-      <div className="border-b border-slate-700 px-2 sm:px-0">
+      <div className="border-b border-gray-800 px-2 sm:px-0">
         <nav className="-mb-px flex space-x-2 sm:space-x-4 overflow-x-auto">
-          {tabs.map((tab) => (
+          {availableTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm transition-colors ${
+              className={`whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm transition-colors duration-200 ${
                 activeTab === tab
-                  ? 'border-teal-400 text-teal-300'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-500'
+                  ? 'border-blue-500 text-gray-100'
+                  : 'border-transparent text-gray-500 hover:text-gray-200 hover:border-gray-700'
               }`}
             >
               {tab}

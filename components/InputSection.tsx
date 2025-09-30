@@ -19,6 +19,12 @@ interface InputSectionProps {
   isLoading: boolean;
 }
 
+const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${secs}`;
+};
+
 export const InputSection: React.FC<InputSectionProps> = ({
   transcript,
   setTranscript,
@@ -34,6 +40,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
   const [recordingStatus, setRecordingStatus] = useState<RecordingStatus>('idle');
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -41,6 +48,25 @@ export const InputSection: React.FC<InputSectionProps> = ({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const timerIntervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (recordingStatus === 'recording') {
+        timerIntervalRef.current = window.setInterval(() => {
+            setElapsedTime(prev => prev + 1);
+        }, 1000);
+    } else {
+        if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+        }
+    }
+    return () => {
+        if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+        }
+    };
+  }, [recordingStatus]);
 
   const cleanupAudio = useCallback(() => {
     if (streamRef.current) {
@@ -94,8 +120,6 @@ export const InputSection: React.FC<InputSectionProps> = ({
         };
         
         mediaRecorder.onstop = async () => {
-          setIsTranscribing(true);
-          setRecordingStatus('stopped');
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
           try {
             const transcribedText = await transcribeAudio(audioBlob);
@@ -104,35 +128,47 @@ export const InputSection: React.FC<InputSectionProps> = ({
             setTranscriptionError(err instanceof Error ? err.message : 'Error en la transcripción.');
           } finally {
             setIsTranscribing(false);
+            setRecordingStatus('idle');
             cleanupAudio();
           }
         };
         
         mediaRecorder.start();
         setRecordingStatus('recording');
+        setElapsedTime(0);
       } catch (err) {
         console.error('Error al iniciar la grabación:', err);
         setTranscriptionError('No se pudo acceder al micrófono. Por favor, comprueba los permisos.');
         cleanupAudio();
+        setRecordingStatus('idle');
       }
     } else {
         setTranscriptionError('La grabación de audio no es compatible con este navegador.');
     }
   }, [setTranscript, cleanupAudio]);
 
-  const stopRecording = useCallback(() => {
+  const pauseRecording = useCallback(() => {
     if (mediaRecorderRef.current && recordingStatus === 'recording') {
-      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.pause();
+      setRecordingStatus('paused');
     }
   }, [recordingStatus]);
 
-  const handleRecordClick = () => {
-    if (recordingStatus === 'recording') {
-      stopRecording();
-    } else {
-      startRecording();
+  const resumeRecording = useCallback(() => {
+    if (mediaRecorderRef.current && recordingStatus === 'paused') {
+      mediaRecorderRef.current.resume();
+      setRecordingStatus('recording');
     }
-  };
+  }, [recordingStatus]);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && (recordingStatus === 'recording' || recordingStatus === 'paused')) {
+      setIsTranscribing(true);
+      setRecordingStatus('stopped');
+      setElapsedTime(0);
+      mediaRecorderRef.current.stop();
+    }
+  }, [recordingStatus]);
 
   const handlePaste = async () => {
     try {
@@ -145,39 +181,54 @@ export const InputSection: React.FC<InputSectionProps> = ({
   
   const InputField: React.FC<{ label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder: string }> = ({ label, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-slate-400 mb-1">{label}</label>
-        <input type="text" {...props} className="w-full bg-slate-700/50 border border-slate-600 rounded-md py-2 px-3 text-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"/>
+        <label className="block text-sm font-medium text-gray-400 mb-1">{label}</label>
+        <input type="text" {...props} className="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"/>
     </div>
   );
 
+  const isRecordingActive = recordingStatus === 'recording' || recordingStatus === 'paused';
+
   return (
-    <div className="bg-slate-800 p-6 rounded-lg shadow-lg flex flex-col gap-6">
+    <div className="bg-gray-900 p-6 rounded-lg shadow-lg flex flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-bold text-teal-400 mb-2">1. Introduce la Transcripción</h2>
+        <h2 className="text-2xl font-bold text-gray-100 mb-2">1. Introduce la Transcripción</h2>
         <div className="flex items-center gap-2 mb-2">
-            <Button
-                onClick={handleRecordClick}
-                disabled={isLoading || isTranscribing}
-                variant="secondary"
-                size="sm"
-            >
-                <Icon name={recordingStatus === 'recording' ? 'stop' : 'mic'} />
-                {recordingStatus === 'recording' ? 'Detener Grabación' : 'Grabar Audio'}
-            </Button>
-            <Button onClick={handlePaste} disabled={isLoading || isTranscribing} variant="secondary" size="sm">
+            {!isRecordingActive && !isTranscribing && (
+                <Button onClick={startRecording} disabled={isLoading} variant="secondary" size="sm">
+                    <Icon name="mic" />
+                    Grabar Audio
+                </Button>
+            )}
+            <Button onClick={handlePaste} disabled={isLoading || isTranscribing || isRecordingActive} variant="secondary" size="sm">
+                <Icon name="paste" />
                 Pegar Texto
             </Button>
         </div>
         
-        {(recordingStatus === 'recording' || isTranscribing) && (
-            <div className="my-2 p-3 bg-slate-900/50 rounded-md">
+        {(isRecordingActive || isTranscribing) && (
+            <div className="my-2 p-4 bg-black/50 rounded-lg flex flex-col items-center gap-3">
                 {isTranscribing ? (
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-center gap-3 py-8">
                         <Loader />
-                        <span className="text-slate-400 text-sm">Transcribiendo...</span>
                     </div>
                 ) : (
-                    <AudioVisualizer analyserNode={analyserRef.current} status={recordingStatus} />
+                    <>
+                        <div className="flex items-center gap-3 text-lg font-mono text-gray-300">
+                           <span className="w-3 h-3 bg-red-500 rounded-full recording-indicator"></span>
+                           <span>{formatTime(elapsedTime)}</span>
+                        </div>
+                        <AudioVisualizer analyserNode={analyserRef.current} status={recordingStatus} />
+                        <div className="flex items-center gap-4 mt-2">
+                            <Button onClick={isRecordingActive && recordingStatus === 'recording' ? pauseRecording : resumeRecording} variant="secondary" size="sm" className="w-28">
+                                <Icon name={recordingStatus === 'recording' ? 'pause' : 'play'} />
+                                {recordingStatus === 'recording' ? 'Pausar' : 'Reanudar'}
+                            </Button>
+                            <Button onClick={stopRecording} variant="secondary" size="sm" className="bg-red-600/80 hover:bg-red-700 text-white w-28">
+                                <Icon name='stop' />
+                                Detener
+                            </Button>
+                        </div>
+                    </>
                 )}
             </div>
         )}
@@ -187,13 +238,13 @@ export const InputSection: React.FC<InputSectionProps> = ({
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
           placeholder="Pega la transcripción aquí o usa el grabador de audio..."
-          className="w-full h-48 bg-slate-700/50 border border-slate-600 rounded-md p-3 text-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition resize-y"
-          disabled={isLoading || recordingStatus === 'recording' || isTranscribing}
+          className="w-full h-48 bg-gray-800 border border-gray-700 rounded-md p-3 text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-y"
+          disabled={isLoading || isRecordingActive || isTranscribing}
         />
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-teal-400 mb-3">2. Añade Contexto (Opcional)</h2>
+        <h2 className="text-2xl font-bold text-gray-100 mb-3">2. Añade Contexto (Opcional)</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
            <InputField label="Título de la Reunión" value={meetingTitle} onChange={(e) => setMeetingTitle(e.target.value)} placeholder="Ej: Sync Semanal de Q3"/>
            <InputField label="Responsable por Defecto" value={defaultOwner} onChange={(e) => setDefaultOwner(e.target.value)} placeholder="Ej: Ana Pérez"/>
@@ -204,22 +255,24 @@ export const InputSection: React.FC<InputSectionProps> = ({
       </div>
       
       <div>
-        <h2 className="text-2xl font-bold text-teal-400 mb-3">3. Genera el Resumen</h2>
+        <h2 className="text-2xl font-bold text-gray-100 mb-3">3. Genera el Resumen</h2>
         <div className="flex flex-col sm:flex-row gap-4">
             <Button 
                 onClick={() => onGenerate('json')}
-                disabled={isLoading || !transcript.trim()}
+                disabled={isLoading || !transcript.trim() || isRecordingActive || isTranscribing}
                 className="w-full"
             >
-                {isLoading ? <Loader /> : 'Generar Resumen Estructurado (JSON)'}
+                {isLoading && <Loader />}
+                {!isLoading && 'Generar Resumen Estructurado (JSON)'}
             </Button>
             <Button 
                 onClick={() => onGenerate('markdown')}
-                disabled={isLoading || !transcript.trim()}
+                disabled={isLoading || !transcript.trim() || isRecordingActive || isTranscribing}
                 variant="secondary"
                 className="w-full"
             >
-                {isLoading ? <Loader /> : 'Generar Resumen Simple (Markdown)'}
+                 {isLoading && <Loader />}
+                 {!isLoading && 'Generar Resumen Simple (Markdown)'}
             </Button>
         </div>
       </div>
